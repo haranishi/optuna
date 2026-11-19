@@ -373,12 +373,14 @@ class StorageTestCase:
             else:
                 assert storage.get_trial(trial_id).datetime_complete is None
 
-        # Non-existent study.
+        # Non-existent trial.
+        non_existent_trial_id = max(trial_ids) + 1
         with pytest.raises(KeyError):
-            non_existent_trial_id = max(trial_ids) + 1
             storage.set_trial_state_values(
                 non_existent_trial_id, state=TrialState.COMPLETE, values=(0.0,)
             )
+        with pytest.raises(KeyError):
+            storage.set_trial_state_values(non_existent_trial_id, state=TrialState.RUNNING)
 
         for state in ALL_STATES:
             if state != TrialState.COMPLETE:
