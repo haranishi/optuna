@@ -99,6 +99,9 @@ class JournalFileBackend(BaseJournalBackend):
                     del self._log_number_offset[log_number + 1]
 
     def append_logs(self, logs: list[dict[str, Any]]) -> None:
+        if not logs:
+            return
+
         with get_lock_file(self._lock):
             what_to_write = (
                 "\n".join([json.dumps(log, separators=(",", ":")) for log in logs]) + "\n"

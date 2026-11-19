@@ -115,6 +115,15 @@ def test_concurrent_append_logs_for_multi_threads(
         assert all(record == r for r in storage.read_logs(0))
 
 
+def test_append_empty_log_batch() -> None:
+    with JournalLogStorageSupplier("file_with_open_lock", None) as backend:
+        backend.append_logs([{"key": "first"}])
+        backend.append_logs([])
+        backend.append_logs([{"key": "second"}])
+
+        assert list(backend.read_logs(0)) == [{"key": "first"}, {"key": "second"}]
+
+
 def test_retry_an_incomplete_trailing_log() -> None:
     what_to_write_1 = (
         b'{"op_code":0,"worker_id":"worker-0"}\n'
