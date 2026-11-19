@@ -123,6 +123,24 @@ def test_get_timeline_info_n_recent_trials(
             assert bar.number == trial.number
 
 
+def test_get_timeline_info_running_trial_after_last_completion() -> None:
+    study = optuna.create_study()
+    completed = optuna.trial.create_trial(value=0.0)
+    completed_start = datetime.datetime(2024, 1, 1)
+    completed.datetime_start = completed_start
+    completed.datetime_complete = completed_start + datetime.timedelta(milliseconds=100)
+    running = optuna.trial.create_trial(state=TrialState.RUNNING)
+    running_start = completed_start + datetime.timedelta(seconds=10)
+    running.datetime_start = running_start
+    study.add_trials([completed, running])
+
+    completed_bar, running_bar = _get_timeline_info(study).bars
+
+    assert completed_bar.complete == completed.datetime_complete
+    assert running_bar.start == running_start
+    assert running_bar.complete - running_bar.start == datetime.timedelta(seconds=1)
+
+
 def test_get_timeline_info_negative_elapsed_time(capsys: _pytest.capture.CaptureFixture) -> None:
     # We need to reconstruct our default handler to properly capture stderr.
     optuna.logging._reset_library_root_logger()

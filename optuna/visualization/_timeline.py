@@ -107,7 +107,7 @@ def _get_timeline_info(study: Study, n_recent_trials: int | None = None) -> _Tim
     for trial in trials:
         datetime_start = trial.datetime_start or max_datetime
         datetime_complete = (
-            max_datetime + timedelta_for_small_bar
+            max(max_datetime, datetime_start) + timedelta_for_small_bar
             if trial.state == TrialState.RUNNING
             else trial.datetime_complete or datetime_start + timedelta_for_small_bar
         )
